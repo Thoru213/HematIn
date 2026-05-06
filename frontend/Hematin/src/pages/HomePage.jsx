@@ -5,6 +5,7 @@ import {semuaFitur, dataSwiper } from '../data/index'
 import FaqComponent from '../components/FaqComponent'
 
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { Link } from "react-router-dom";
 
 // Import Swiper styles
 import 'swiper/css';
@@ -26,7 +27,7 @@ const HomePage = () => {
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                 </p>
                 <button className="btn btn-danger btn-lg rounded-1 me-2 mb-xs-0 mb-2">Lihat Fitur</button>
-                <button className="btn btn-outline-danger btn-lg rounded-1 me-2 mb-xs-0 mb-2">Get Started</button>
+                <Link to="/login" className="btn btn-outline-danger btn-lg rounded-1 me-2 mb-xs-0 mb-2">Get Started</Link>
             </Col>
             <Col lg="6" className="pt-lg-0 pt-5">
                 <img src={WalletImage} alt="wallet-img" />
