@@ -43,7 +43,7 @@ const NavbarComponent = () => {
           </Nav>
 
           <div className = "text-center">
-            <button className="btn btn-outline-danger rounded-1">Join With Us</button>
+            <NavLink to="register" className="btn btn-outline-danger rounded-1">Join With Us</NavLink>
           </div>
         </Navbar.Collapse>
       </Container>
