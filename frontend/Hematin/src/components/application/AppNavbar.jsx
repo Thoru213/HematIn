@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Offcanvas } from "react-bootstrap";
 
 import AppSidebar from "./AppSidebar";
@@ -12,6 +12,26 @@ const AppNavbar = () => {
   const [show, setShow] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setShowSearch(false);
+      }
+    };
+    window.addEventListener(
+      "resize",
+      handleResize
+    );
+    
+    return () => {
+      
+      window.removeEventListener(
+        "resize",
+        handleResize
+      );
+    };
+  }, []);
 
   return (
     <>
@@ -67,6 +87,7 @@ const AppNavbar = () => {
       <Offcanvas
         show={show}
         onHide={() => setShow(false)}
+        style={{ width: "300px" }}
       >
 
         <Offcanvas.Header closeButton>

@@ -1,4 +1,9 @@
 const ProfileMenu = () => {
+
+  const user = JSON.parse(
+    localStorage.getItem("user")
+  );
+
   return (
     <div className="profile-box">
 
@@ -8,8 +13,15 @@ const ProfileMenu = () => {
       />
 
       <div>
-        <h5>Budi Santoso</h5>
-        <p>User</p>
+
+        <h5>
+          {user ? user.username : "User"}
+        </h5>
+
+        <p>
+          User
+        </p>
+
       </div>
 
     </div>

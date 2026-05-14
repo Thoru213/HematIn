@@ -1,53 +1,102 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 import Logo from "../../assets/logo.png";
 
 const AppSidebar = () => {
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+
+    navigate("/login");
+
+  };
+
   return (
     <aside className="app-sidebar">
 
-      {/* LOGO */}
-      <div className="sidebar-logo">
+      {/* TOP */}
+      <div>
 
-        <img
-          src={Logo}
-          alt="logo"
-        />
+        {/* LOGO */}
+        <div className="sidebar-header">
 
-        <h3>Hematin</h3>
+          <img
+            src={Logo}
+            alt="logo"
+            className="sidebar-logo"
+          />
+
+          <div>
+
+            <h3>Hematin</h3>
+
+            <p>
+              Money Management
+            </p>
+
+          </div>
+
+        </div>
+
+        {/* MENU */}
+        <div className="sidebar-menu">
+
+          <NavLink
+            to="/dashboard"
+            className="sidebar-link"
+          >
+            📊 Dashboard
+          </NavLink>
+
+          <NavLink
+            to="/accounts"
+            className="sidebar-link"
+          >
+            💳 Accounts
+          </NavLink>
+
+          <NavLink
+            to="/transactions"
+            className="sidebar-link"
+          >
+            📋 Transactions
+          </NavLink>
+
+          <NavLink
+            to="/budgets"
+            className="sidebar-link"
+          >
+            💸 Budgets
+          </NavLink>
+
+          <NavLink
+            to="/reports"
+            className="sidebar-link"
+          >
+            📑 Reports
+          </NavLink>
+
+        </div>
 
       </div>
 
-      {/* MENU */}
-      <div className="sidebar-menu">
+      {/* BOTTOM */}
+      <div className="sidebar-bottom">
 
-        <NavLink
-          to="/dashboard"
-          className="sidebar-link"
-        >
-          Dashboard
-        </NavLink>
+        <button className="sidebar-footer-btn">
+          ❔ Help Center
+        </button>
 
-        <NavLink
-          to="/transaction"
-          className="sidebar-link"
+        <button
+          className="sidebar-footer-btn logout-btn"
+          onClick={handleLogout}
         >
-          Transaksi
-        </NavLink>
-
-        <NavLink
-          to="/report"
-          className="sidebar-link"
-        >
-          Laporan
-        </NavLink>
-
-        <NavLink
-          to="/settings"
-          className="sidebar-link"
-        >
-          Settings
-        </NavLink>
+          ↪ Logout
+        </button>
 
       </div>
 

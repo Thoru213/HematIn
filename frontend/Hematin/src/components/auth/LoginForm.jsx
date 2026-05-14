@@ -48,13 +48,14 @@ const LoginForm = () => {
   };
 
   return (
-    <form onSubmit={handleLogin}>
+    <form className="p-4 shadow rounded" onSubmit={handleLogin}>
 
-      <h2>Login</h2>
+      <h2 className="mb-4 text-center">Login</h2>
 
       <input
         type="email"
         placeholder="Email"
+        className="form-control mb-3"
         value={formData.email_user}
         onChange={(e) =>
           setFormData({
@@ -67,6 +68,7 @@ const LoginForm = () => {
       <input
         type="password"
         placeholder="Password"
+        className="form-control mb-3"
         value={formData.password}
         onChange={(e) =>
           setFormData({
@@ -76,13 +78,13 @@ const LoginForm = () => {
         }
       />
 
-      <button type="submit">
+      <button type="submit" className="btn btn-danger w-100 mb-3">
         Login
       </button>
 
       <p className="text-center mt-3">
 
-        Belum memiliki akun?
+        Belum punya akun?
         {" "}
 
         <Link to="/register">

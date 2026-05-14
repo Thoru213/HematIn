@@ -1,34 +1,31 @@
-import { Navigate } from "react-router-dom";
+import GreetingHeader from "../../components/dashboard/GreetingHeader";
+
+import DashboardActions from "../../components/dashboard/sections/DashboardActions";
+import StatsSection from "../../components/dashboard/sections/StatsSection";
+import AnalyticsSection from "../../components/dashboard/sections/AnalyticsSection";
+import BottomSection from "../../components/dashboard/sections/BottomSection";
 
 const DashboardPage = () => {
-  // const isLogin = localStorage.getItem("isLogin");
-
-  // if (!isLogin) {
-  //   return <Navigate to="/login" />;
-  // }
-
   const user = JSON.parse(localStorage.getItem("user"));
 
   return (
-    <div className="dashboard-page">
+      <div className="dashboard-page">
+        <div className="dashboard-top">
+          <GreetingHeader user={user} />
 
-      <h1>Dashboard</h1>
+          <DashboardActions />
+        </div>
 
-      <h3>
-        Selamat datang, {user?.name}
-      </h3>
+        {/* Stats Cards */}
+        <StatsSection />
 
-      <button
-        className="btn btn-danger mt-3"
-        onClick={() => {
-          localStorage.removeItem("isLogin");
-          window.location.href = "/login";
-        }}
-      >
-        Logout
-      </button>
+        {/* Chart & Budget */}
+        <AnalyticsSection />
 
-    </div>
+        {/* Transactions & Tips */}
+        <BottomSection />
+
+      </div>
   );
 };
 

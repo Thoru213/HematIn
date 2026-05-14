@@ -19,7 +19,7 @@ const HomePage = () => {
     let navigate = useNavigate();
 
   return (<div className="homepage">
-    <header className="w-100 min-vh-100 d-flex align-items-center">
+    <header className="w-100 min-vh-100 d-flex align-items-center homepage-header">
     <Container>
         <Row className="header-box d-flex align-items-center pt-lg-5">
             <Col lg="6">

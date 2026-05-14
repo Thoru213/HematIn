@@ -1,13 +1,26 @@
 const SearchBox = ({
   placeholder,
-  mobile,
+  mobile = false,
   value,
-  onChange
+  onChange,
 }) => {
   return (
-    <div className={mobile ? "mobile-search-box" : "search-box"}>
 
-      <span className="search-icon">
+    <div
+      className={
+        mobile
+          ? "mobile-search-box"
+          : "search-box"
+      }
+    >
+
+      <span
+        className={
+          mobile
+            ? "mobile-search-icon"
+            : "search-icon"
+        }
+      >
         🔍
       </span>
 
@@ -19,6 +32,7 @@ const SearchBox = ({
       />
 
     </div>
+
   );
 };
 

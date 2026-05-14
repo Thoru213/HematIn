@@ -7,22 +7,26 @@ import { Outlet } from "react-router-dom";
 
 const AppLayout = () => {
   return (
-    <div className="dashboard-layout">
+    <div className="dashboard-app">
 
-      {/* SIDEBAR */}
-      <div className="desktop-sidebar">
-        <AppSidebar />
-      </div>
+      <div className="dashboard-layout">
 
-      {/* MAIN */}
-      <div className="dashboard-main">
+        {/* SIDEBAR */}
+        <div className="desktop-sidebar">
+          <AppSidebar />
+        </div>
 
-        {/* NAVBAR */}
-        <AppNavbar />
+        {/* MAIN */}
+        <div className="dashboard-main">
 
-        {/* CONTENT */}
-        <div className="dashboard-content">
-          <Outlet />
+          {/* NAVBAR */}
+          <AppNavbar />
+
+          {/* CONTENT */}
+          <div className="dashboard-content">
+            <Outlet />
+          </div>
+
         </div>
 
       </div>
