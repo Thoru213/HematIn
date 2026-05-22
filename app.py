@@ -1034,3 +1034,7 @@ elif halaman == "💡 Insight":
     df_show["Total (Rp)"] = df_show["Total (Rp)"].apply(lambda x: f"Rp {x:,.0f}")
     df_show["Tanggal"] = df_show["Tanggal"].dt.date
     st.dataframe(df_show, use_container_width=True, hide_index=True)
+
+
+
+   #Ini komen
