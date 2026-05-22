@@ -1037,4 +1037,3 @@ elif halaman == "💡 Insight":
 
 
 
-   #Ini komen
