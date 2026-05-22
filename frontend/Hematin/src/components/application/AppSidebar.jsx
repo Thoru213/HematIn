@@ -53,10 +53,10 @@ const AppSidebar = () => {
           </NavLink>
 
           <NavLink
-            to="/accounts"
+            to="/wallets"
             className="sidebar-link"
           >
-            💳 Accounts
+            💳 Wallets
           </NavLink>
 
           <NavLink

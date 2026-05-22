@@ -12,18 +12,22 @@ const Modal = ({
 
       <div className="custom-modal">
 
-        <div className="modal-header">
+        <div className="custom-modal-content">
 
-          <h4>{title}</h4>
+          <div className="modal-header">
 
-          <button onClick={onClose}>
-            ✖
-          </button>
+            <h4>{title}</h4>
 
-        </div>
+            <button onClick={onClose}>
+              ✖
+            </button>
 
-        <div className="modal-body">
-          {children}
+          </div>
+
+          <div className="modal-body">
+            {children}
+          </div>
+
         </div>
 
       </div>

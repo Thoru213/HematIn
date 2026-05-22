@@ -13,6 +13,8 @@ import DashboardPage from "./pages/Dashboard/DashboardPage";
 
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import AddTransactionPage from "./pages/transaction/AddTransactionPage";
+import AddBudgetPage from "./pages/budget/AddBudgetPage";
 
 function App() {
   return (
@@ -36,6 +38,8 @@ function App() {
       <Route element={<AppLayouts />}>
 
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/transactions/add" element={<AddTransactionPage />}/>
+        <Route path="/budgets/add" element={<AddBudgetPage />}/>
 
       </Route>
 
