@@ -13,7 +13,7 @@ const TransactionItem = ({
       </div>
 
       <h5>
-        {type === "income" ? "+" : "-"}
+        {type === "pemasukan" ? "+" : "-"}
         Rp {amount}
       </h5>
 

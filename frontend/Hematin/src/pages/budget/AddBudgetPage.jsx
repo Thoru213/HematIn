@@ -7,7 +7,7 @@ const AddBudgetPage = () => {
 
   const [formData, setFormData] =
     useState({
-      budgetType: "Expense",
+      budgetType: "Pengeluaran",
       descriptionBudget: "",
       category: "",
       amountLimit: "",

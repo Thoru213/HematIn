@@ -1,26 +1,51 @@
-import TransactionItem from "./TransactionItem";
+import TransactionItem
+from "./TransactionItem";
 
-const TransactionList = () => {
+const TransactionList = ({
+  transactions = []
+}) => {
+
+  const latestTransactions =
+    transactions.slice(-5).reverse();
+
   return (
     <div className="transaction-list-card">
 
       <div className="transaction-header">
-        <h4>Transaksi Terakhir</h4>
+
+        <h4>
+          Transaksi Terakhir
+        </h4>
+
       </div>
 
-      <TransactionItem
-        title="Nasi Goreng"
-        date="Hari ini"
-        amount="25.000"
-        type="expense"
-      />
+      {
+        latestTransactions.length === 0
+        ? (
+          <p>
+            Belum ada transaksi
+          </p>
+        )
+        : (
+          latestTransactions.map(
+            (item, index) => (
 
-      <TransactionItem
-        title="Top Up E-Wallet"
-        date="Hari ini"
-        amount="100.000"
-        type="income"
-      />
+            <TransactionItem
+              key={index}
+              title={item.description}
+              date={
+                item.transaction_date
+              }
+              amount={item.amount}
+              type={
+                item.transaction_type
+                .toLowerCase()
+              }
+            />
+
+          ))
+        )
+      }
 
     </div>
   );

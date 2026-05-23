@@ -67,7 +67,7 @@ const BudgetForm = ({
 
           {
             formData.budgetType ===
-            "Expense"
+            "Pengeluaran"
             ? (
               <>
                 <option value="Food">

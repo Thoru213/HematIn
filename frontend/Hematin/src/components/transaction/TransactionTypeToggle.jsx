@@ -1,31 +1,44 @@
-const TransactionTypeToggle = ({ value, onChange }) => {
+const TransactionTypeToggle = ({
+  value,
+  onChange
+}) => {
+
   return (
+
     <div className="transaction-toggle">
+
       <button
         type="button"
         className={
-          value === "Expense"
+          value === "Pengeluaran"
             ? "toggle-btn active-expense"
             : "toggle-btn"
         }
-        onClick={() => onChange("Expense")}
+        onClick={() =>
+          onChange("Pengeluaran")
+        }
       >
-        Expense
+        Pengeluaran
       </button>
 
       <button
         type="button"
         className={
-          value === "Income"
+          value === "Pemasukan"
             ? "toggle-btn active-income"
             : "toggle-btn"
         }
-        onClick={() => onChange("Income")}
+        onClick={() =>
+          onChange("Pemasukan")
+        }
       >
-        Income
+        Pemasukan
       </button>
+
     </div>
+
   );
+
 };
 
 export default TransactionTypeToggle;

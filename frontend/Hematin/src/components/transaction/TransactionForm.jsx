@@ -1,4 +1,15 @@
+import { useEffect, useState } from "react";
+
 import TransactionTypeToggle from "./TransactionTypeToggle";
+
+import {
+  getCategories
+} from "../../services/categoryService";
+
+import {
+  getWallets
+} from "../../services/walletService";
+
 import "../../dist/css/Transaction.css";
 
 const TransactionForm = ({
@@ -7,21 +18,158 @@ const TransactionForm = ({
   handleTypeChange,
   handleSubmit,
 }) => {
+
+  /* =========================
+     USER LOGIN
+  ========================= */
+
+  const user = JSON.parse(
+    localStorage.getItem("user")
+  );
+
+  /* =========================
+     CATEGORY STATE
+  ========================= */
+
+  const [categories, setCategories] =
+    useState([]);
+
+  /* =========================
+     WALLET STATE
+  ========================= */
+
+  const [wallets, setWallets] =
+    useState([]);
+
+  /* =========================
+     FETCH CATEGORY
+  ========================= */
+
+  useEffect(() => {
+
+    const fetchCategories =
+      async () => {
+
+        try {
+
+          // USER BELUM LOGIN
+          if (!user?.id_user) {
+
+            console.log(
+              "USER CATEGORY TIDAK ADA"
+            );
+
+            return;
+
+          }
+
+          const data =
+            await getCategories(
+              user.id_user
+            );
+
+          console.log(
+            "CATEGORIES:",
+            data
+          );
+
+          setCategories(data);
+
+        } catch (error) {
+
+          console.log(error);
+
+        }
+
+      };
+
+    fetchCategories();
+
+  }, []);
+
+  /* =========================
+     FETCH WALLET
+  ========================= */
+
+  useEffect(() => {
+
+    const fetchWallets =
+      async () => {
+
+        try {
+
+          // USER BELUM LOGIN
+          if (!user?.id_user) {
+
+            console.log(
+              "USER WALLET TIDAK ADA"
+            );
+
+            return;
+
+          }
+
+          const data =
+            await getWallets(
+              user.id_user
+            );
+
+          console.log(
+            "WALLETS:",
+            data
+          );
+
+          setWallets(data);
+
+        } catch (error) {
+
+          console.log(error);
+
+        }
+
+      };
+
+    fetchWallets();
+
+  }, []);
+
   return (
-    <form className="transaction-form" onSubmit={handleSubmit}>
-      <h2 className="form-title">Tambah Transaction</h2>
+
+    <form
+      className="transaction-form"
+      onSubmit={handleSubmit}
+    >
+
+      <h2 className="form-title">
+        Tambah Transaction
+      </h2>
+
+      {/* TRANSACTION TYPE */}
 
       <div className="form-group">
-        <label>Transaction Type</label>
+
+        <label>
+          Transaction Type
+        </label>
 
         <TransactionTypeToggle
-          value={formData.transactionType}
-          onChange={handleTypeChange}
+          value={
+            formData.transactionType
+          }
+          onChange={
+            handleTypeChange
+          }
         />
+
       </div>
 
+      {/* AMOUNT */}
+
       <div className="form-group">
-        <label>Amount</label>
+
+        <label>
+          Amount
+        </label>
 
         <input
           type="number"
@@ -29,11 +177,18 @@ const TransactionForm = ({
           placeholder="Enter amount"
           value={formData.amount}
           onChange={handleChange}
+          required
         />
+
       </div>
 
+      {/* DESCRIPTION */}
+
       <div className="form-group">
-        <label>Description</label>
+
+        <label>
+          Description
+        </label>
 
         <input
           type="text"
@@ -41,89 +196,136 @@ const TransactionForm = ({
           placeholder="Description"
           value={formData.description}
           onChange={handleChange}
+          required
         />
+
       </div>
 
+      {/* DATE */}
+
       <div className="form-group">
-        <label>Transaction Date</label>
+
+        <label>
+          Transaction Date
+        </label>
 
         <input
           type="datetime-local"
           name="transactionDate"
-          value={formData.transactionDate}
+          value={
+            formData.transactionDate
+          }
           onChange={handleChange}
+          required
         />
+
       </div>
 
-      <div className="form-group">
-
-  <label>Wallet</label>
-
-  <select
-    name="wallet"
-    value={formData.wallet}
-    onChange={handleChange}
-  >
-
-    <option value="">
-      Select Wallet
-    </option>
-
-    <option value="cash">
-      Cash
-    </option>
-
-    <option value="gopay">
-      GoPay
-    </option>
-
-  </select>
-
-</div>
+      {/* WALLET */}
 
       <div className="form-group">
 
-  <label>Category</label>
+        <label>
+          Wallet
+        </label>
 
-  <select
-  name="category"
-  value={formData.category}
-  onChange={handleChange}
->
+        <select
+          name="wallet"
+          value={formData.wallet}
+          onChange={handleChange}
+          required
+        >
 
-  <option value="">
-    Select Category
-  </option>
+          <option value="">
+            Select Wallet
+          </option>
 
-  <option value="Food">
-    Food
-  </option>
+          {wallets.length > 0 ? (
 
-  <option value="Transport">
-    Transport
-  </option>
+            wallets.map((wallet) => (
 
-  <option value="Shopping">
-    Shopping
-  </option>
+              <option
+                key={wallet.id_wallet}
+                value={wallet.id_wallet}
+              >
 
-  <option value="Salary">
-    Salary
-  </option>
+                {wallet.wallet_name}
 
-  <option value="Freelance">
-    Freelance
-  </option>
+              </option>
 
-</select>
+            ))
 
-</div>
+          ) : (
 
-      <button type="submit" className="submit-btn">
+            <option disabled>
+              Wallet belum tersedia
+            </option>
+
+          )}
+
+        </select>
+
+      </div>
+
+      {/* CATEGORY */}
+
+      <div className="form-group">
+
+        <label>
+          Category
+        </label>
+
+        <select
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+          required
+        >
+
+          <option value="">
+            Select Category
+          </option>
+
+          {categories.length > 0 ? (
+
+            categories.map((category) => (
+
+              <option
+                key={category.id_category}
+                value={category.id_category}
+              >
+
+                {category.category_name}
+
+              </option>
+
+            ))
+
+          ) : (
+
+            <option disabled>
+              Category belum tersedia
+            </option>
+
+          )}
+
+        </select>
+
+      </div>
+
+      {/* SUBMIT */}
+
+      <button
+        type="submit"
+        className="submit-btn"
+      >
         Save Transaction
       </button>
+
     </form>
+
   );
+
 };
 
 export default TransactionForm;

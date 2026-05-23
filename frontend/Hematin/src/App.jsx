@@ -15,6 +15,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import AddTransactionPage from "./pages/transaction/AddTransactionPage";
 import AddBudgetPage from "./pages/budget/AddBudgetPage";
+import TransactionPage from "./pages/transaction/TransactionPage";
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/transactions/add" element={<AddTransactionPage />}/>
         <Route path="/budgets/add" element={<AddBudgetPage />}/>
+        <Route path="/transactions" element={<TransactionPage />}/>
 
       </Route>
 
