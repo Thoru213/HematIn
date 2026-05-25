@@ -2,13 +2,11 @@ import TransactionItem
 from "./TransactionItem";
 
 const TransactionList = ({
-  transactions = []
+  transactions
 }) => {
 
-  const latestTransactions =
-    transactions.slice(-5).reverse();
-
   return (
+
     <div className="transaction-list-card">
 
       <div className="transaction-header">
@@ -20,26 +18,39 @@ const TransactionList = ({
       </div>
 
       {
-        latestTransactions.length === 0
+        transactions.length === 0
         ? (
           <p>
             Belum ada transaksi
           </p>
         )
         : (
-          latestTransactions.map(
-            (item, index) => (
+          transactions.map((item) => (
 
             <TransactionItem
-              key={index}
-              title={item.description}
-              date={
-                item.transaction_date
+              key={
+                item.id_transaction
               }
-              amount={item.amount}
+
+              title={
+                item.description
+              }
+
+              date={
+                new Date(
+                  item.transaction_date
+                ).toLocaleDateString()
+              }
+
+              amount={
+                item.amount
+              }
+
               type={
-                item.transaction_type
-                .toLowerCase()
+                item.transaction_type ===
+                "Pengeluaran"
+                  ? "pengeluaran"
+                  : "pemasukan"
               }
             />
 
@@ -48,7 +59,9 @@ const TransactionList = ({
       }
 
     </div>
+
   );
+
 };
 
 export default TransactionList;

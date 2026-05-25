@@ -137,16 +137,24 @@ const editTransaction = async (req, res) => {
 
     const {
 
+      id_wallet,
+      id_category,
+      transaction_type,
       amount,
-      description
+      description,
+      transaction_date,
 
     } = req.body
 
     await updateTransaction(
 
       id_transaction,
+      id_wallet,
+      id_category,
+      transaction_type,
       amount,
-      description
+      description,
+      transaction_date
 
     )
 

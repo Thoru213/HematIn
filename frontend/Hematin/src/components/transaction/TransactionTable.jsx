@@ -1,7 +1,9 @@
 import "../../dist/css/Transaction.css";
 
 const TransactionTable = ({
-  transactions
+  transactions,
+  onEdit,
+  onDelete
 }) => {
 
   return (
@@ -13,10 +15,13 @@ const TransactionTable = ({
 
           <th>No</th>
           <th>Type</th>
+          <th>Description</th>
           <th>Category</th>
           <th>Amount</th>
           <th>Wallet</th>
           <th>Date</th>
+          <th>Source</th>
+          <th>Action</th>
 
         </tr>
 
@@ -30,7 +35,7 @@ const TransactionTable = ({
             <tr>
 
               <td
-                colSpan="5"
+                colSpan="9"
                 className="empty-table"
               >
                 Belum ada transaksi
@@ -51,6 +56,10 @@ const TransactionTable = ({
                 </td>
 
                 <td>
+                  {item.description}
+                </td>
+
+                <td>
                   {item.category_name}
                 </td>
 
@@ -63,8 +72,42 @@ const TransactionTable = ({
                 </td>
 
                 <td>
-                  {item.transaction_date}
+                  {
+            new Date(
+              item.transaction_date
+            ).toLocaleDateString()
+          }
                 </td>
+
+                <td>
+                  {item.source}
+                </td>
+
+                <td>
+<div className="table-actions">
+
+    <button
+      className="edit-btn"
+      onClick={() =>
+        onEdit(item)
+      }
+    >
+      Edit
+    </button>
+
+    <button
+      className="delete-btn"
+      onClick={() =>
+        onDelete(
+          item.id_transaction
+        )
+      }
+    >
+      Delete
+    </button>
+
+  </div>
+                    </td>
 
               </tr>
 

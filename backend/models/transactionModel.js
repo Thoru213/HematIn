@@ -90,9 +90,13 @@ const getTransactionByUser = async (id_user) => {
 // =========================
 const updateTransaction = async (
 
-  id_transaction,
-  amount,
-  description
+    id_transaction,
+    id_wallet,
+    id_category,
+    transaction_type,
+    amount,
+    description,
+    transaction_date,
 
 ) => {
 
@@ -102,15 +106,23 @@ const updateTransaction = async (
     UPDATE transactions
     SET
 
-      amount = $1,
-      description = $2
+      id_wallet = $1,
+      id_category = $2,
+      transaction_type = $3,
+      amount = $4,
+      description = $5,
+      transaction_date = $6
 
-    WHERE id_transaction = $3
+    WHERE id_transaction = $7
     `,
 
     [
+      id_wallet,
+      id_category,
+      transaction_type,
       amount,
       description,
+      transaction_date,
       id_transaction
     ]
 

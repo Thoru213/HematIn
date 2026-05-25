@@ -1,4 +1,7 @@
-import { useState } from "react";
+import {
+  useState,
+  useEffect
+} from "react";
 
 import GreetingHeader
 from "../../components/dashboard/GreetingHeader";
@@ -15,7 +18,15 @@ from "../../components/dashboard/sections/AnalyticsSection";
 import BottomSection
 from "../../components/dashboard/sections/BottomSection";
 
+import {
+  getTransactions
+} from "../../services/transactionService";
+
 const DashboardPage = () => {
+
+  /* =========================
+     USER
+  ========================= */
 
   const user = JSON.parse(
     localStorage.getItem("user")
@@ -25,11 +36,53 @@ const DashboardPage = () => {
      TRANSACTION STATE
   ========================= */
 
-  const [transactions,
-  setTransactions] =
-    useState([]);
+  const [
+    transactions,
+    setTransactions
+  ] = useState([]);
+
+  /* =========================
+     FETCH TRANSACTIONS
+  ========================= */
+
+  useEffect(() => {
+
+    const fetchTransactions =
+      async () => {
+
+        try {
+
+          if (!user?.id_user)
+            return;
+
+          const data =
+            await getTransactions(
+              user.id_user
+            );
+
+          setTransactions(data);
+
+        } catch (error) {
+
+          console.log(error);
+
+        }
+
+      };
+
+    fetchTransactions();
+
+  }, [user?.id_user]);
+
+  /* =========================
+     LATEST 5 TRANSACTIONS
+  ========================= */
+
+  const latestTransactions =
+    transactions.slice(0,5);
 
   return (
+
     <div className="dashboard-page">
 
       {/* =========================
@@ -72,11 +125,15 @@ const DashboardPage = () => {
       ========================= */}
 
       <BottomSection
-        transactions={transactions}
+        transactions={
+          latestTransactions
+        }
       />
 
     </div>
+
   );
+
 };
 
 export default DashboardPage;

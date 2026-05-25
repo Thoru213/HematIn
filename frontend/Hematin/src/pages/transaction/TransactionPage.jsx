@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Modal from "../../components/ui/Modal";
 
@@ -14,6 +14,12 @@ from "../../components/receipt/ReceiptModal";
 import {
   addTransaction
 } from "../../services/transactionService";
+
+import { getTransactions } from "../../services/transactionService";
+
+import {updateTransaction} from "../../services/transactionService";
+
+import {deleteTransaction} from "../../services/transactionService";
 
 const TransactionPage = () => {
 
@@ -49,6 +55,13 @@ const TransactionPage = () => {
     setSearch] =
     useState("");
 
+  const [isEdit, setIsEdit] =
+  useState(false);
+  
+  const [selectedTransaction,
+    setSelectedTransaction] =
+    useState(null);
+
   /* =========================
      FORM STATE
   ========================= */
@@ -67,6 +80,49 @@ const TransactionPage = () => {
       wallet: "",
       category: "",
     });
+
+    /* =========================
+   FETCH TRANSACTIONS
+========================= */
+
+const fetchTransactions =
+  async () => {
+
+    try {
+
+      if (!user?.id_user) return;
+
+      const data =
+        await getTransactions(
+          user.id_user
+        );
+
+      setTransactions(data);
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
+};
+
+/* =========================
+   USE EFFECT
+========================= */
+
+useEffect(() => {
+
+  const loadData =
+    async () => {
+
+      await fetchTransactions();
+
+    };
+
+  loadData();
+
+}, [user?.id_user]);
 
   /* =========================
      HANDLE CHANGE
@@ -97,49 +153,80 @@ const TransactionPage = () => {
 
   };
 
-  /* =========================
-     HANDLE SUBMIT
-  ========================= */
+/* =========================
+   HANDLE SUBMIT
+========================= */
 
-  const handleSubmit =
-    async (e) => {
+const handleSubmit =
+  async (e) => {
 
-      e.preventDefault();
+    e.preventDefault();
 
-      try {
+    try {
 
-        const payload = {
+      const payload = {
 
-          id_user:
-            user.id_user,
-        
-          id_wallet:
-            formData.wallet,
-        
-          id_category:
-            formData.category,
-        
-          id_budget:
-            null,
-        
-          transaction_type:
-            formData.transactionType,
-        
-          amount:
-            Number(formData.amount),
-        
-          description:
-            formData.description,
-        
-          transaction_date:
-            formData.transactionDate,
-        
-          source:
-            "Manual"
-        
-        }
+        id_user:
+          user.id_user,
+
+        id_wallet:
+          formData.wallet,
+
+        id_category:
+          formData.category,
+
+        id_budget:
+          null,
+
+        transaction_type:
+          formData.transactionType,
+
+        amount:
+          Number(formData.amount),
+
+        description:
+          formData.description,
+
+        transaction_date:
+          formData.transactionDate,
+
+        source:
+          "Manual"
+
+      };
+
+      console.log(payload);
+
+      /* =========================
+         EDIT TRANSACTION
+      ========================= */
+
+      if (isEdit) {
 
         console.log(payload);
+
+        await updateTransaction(
+
+          selectedTransaction
+            .id_transaction,
+
+          payload
+
+        );
+
+await fetchTransactions();
+
+        alert(
+          "Transaction updated"
+        );
+
+      }
+
+      /* =========================
+         ADD TRANSACTION
+      ========================= */
+
+      else {
 
         const result =
           await addTransaction(
@@ -148,41 +235,100 @@ const TransactionPage = () => {
 
         console.log(result);
 
-        setTransactions([
-          ...transactions,
-          {
-            ...formData,
-            source: "Manual",
-          },
-        ]);
+        await fetchTransactions();
 
         alert(
-          "Transaction berhasil ditambahkan"
-        );
-
-        setShowTransaction(false);
-
-        setFormData({
-          transactionType:
-            "Pengeluaran",
-          amount: "",
-          description: "",
-          transactionDate: "",
-          wallet: "",
-          category: "",
-        });
-
-      } catch (error) {
-
-        console.log(error);
-
-        alert(
-          "Gagal tambah transaction"
+          "Transaction added"
         );
 
       }
 
-    };
+      /* =========================
+         RESET FORM
+      ========================= */
+
+      setShowTransaction(false);
+
+      setIsEdit(false);
+
+      setSelectedTransaction(null);
+
+      setFormData({
+
+        transactionType:
+          "Pengeluaran",
+
+        amount: "",
+
+        description: "",
+
+        transactionDate: "",
+
+        wallet: "",
+
+        category: "",
+
+      });
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert(
+        "Gagal simpan transaction"
+      );
+
+    }
+
+};;
+
+/* =========================
+   HANDLE DELETE
+========================= */
+
+const handleDelete =
+  async (id_transaction) => {
+
+    const confirmDelete =
+      window.confirm(
+        "Hapus transaction?"
+      );
+
+    if (!confirmDelete) return;
+
+    try {
+
+      await deleteTransaction(
+        id_transaction
+      );
+
+      const filtered =
+        transactions.filter(
+          (item) =>
+
+            item.id_transaction !==
+            id_transaction
+        );
+
+      setTransactions(filtered);
+
+      alert(
+        "Transaction deleted"
+      );
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert(
+        "Gagal hapus transaction"
+      );
+
+    }
+
+};
+
+
 
   /* =========================
      FILTER DATA
@@ -193,7 +339,7 @@ const TransactionPage = () => {
 
       const matchType =
         typeFilter === "All"
-        || item.transactionType ===
+        || item.transaction_type ===
         typeFilter;
 
       const matchSource =
@@ -215,6 +361,34 @@ const TransactionPage = () => {
       );
 
     });
+
+    const handleEdit = (data) => {
+      setSelectedTransaction(data);
+      setFormData({
+        transactionType:
+        data.transaction_type,
+        
+        amount:
+        data.amount,
+        
+        description:
+        data.description,
+        
+        transactionDate:
+        data.transaction_date ?.slice(0,16),
+        
+        wallet:
+        data.id_wallet,
+        
+        category:
+        data.id_category,
+  });
+
+  setIsEdit(true);
+
+  setShowTransaction(true);
+
+};
 
   return (
     <div className="transaction-page">
@@ -333,6 +507,8 @@ const TransactionPage = () => {
         transactions={
           filteredTransactions
         }
+        onEdit={handleEdit}
+        onDelete={handleDelete}
       />
 
       {/* TRANSACTION MODAL */}

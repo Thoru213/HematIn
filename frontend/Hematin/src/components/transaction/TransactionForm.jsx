@@ -85,7 +85,7 @@ const TransactionForm = ({
 
     fetchCategories();
 
-  }, []);
+  }, [user?.id_user]);
 
   /* =========================
      FETCH WALLET
@@ -131,7 +131,7 @@ const TransactionForm = ({
 
     fetchWallets();
 
-  }, []);
+  }, [user?.id_user]);
 
   return (
 
