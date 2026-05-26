@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import Modal from "../../components/ui/Modal";
 
@@ -85,8 +85,12 @@ const TransactionPage = () => {
    FETCH TRANSACTIONS
 ========================= */
 
+/* =========================
+   FETCH TRANSACTIONS
+========================= */
+
 const fetchTransactions =
-  async () => {
+  useCallback(async () => {
 
     try {
 
@@ -105,7 +109,7 @@ const fetchTransactions =
 
     }
 
-};
+  }, [user?.id_user]);
 
 /* =========================
    USE EFFECT
@@ -113,16 +117,13 @@ const fetchTransactions =
 
 useEffect(() => {
 
-  const loadData =
-    async () => {
+  const load = async () => {
+    await fetchTransactions();
+  };
 
-      await fetchTransactions();
+  load();
 
-    };
-
-  loadData();
-
-}, [user?.id_user]);
+}, [fetchTransactions]);
 
   /* =========================
      HANDLE CHANGE

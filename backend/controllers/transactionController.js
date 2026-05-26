@@ -1,205 +1,717 @@
-const pool = require('../config/db')
+const pool = require('../config/db');
 
 const {
 
-  createTransaction,
   getTransactionByUser,
-  updateTransaction,
-  deleteTransaction
 
-} = require('../models/transactionModel')
+} = require('../models/transactionModel');
 
-// =========================
-// CREATE TRANSACTION
-// =========================
-const addTransaction = async (req, res) => {
+const INCOME_TYPE = 'Pemasukan';
+const EXPENSE_TYPE = 'Pengeluaran';
 
-  console.log(req.body)
+const getBalanceDelta = (
+  transaction_type,
+  amount
+) => {
 
-  try {
+  const numericAmount =
+    Number(amount);
 
-    const {
+  if (
+    transaction_type ===
+    INCOME_TYPE
+  ) {
 
-      id_user,
-      id_wallet,
-      id_category,
-      id_budget,
+    return numericAmount;
+
+  }
+
+  if (
+    transaction_type ===
+    EXPENSE_TYPE
+  ) {
+
+    return -numericAmount;
+
+  }
+
+  return null;
+
+};
+
+const validateTransactionInput = (
+  transaction_type,
+  amount
+) => {
+
+  const numericAmount =
+    Number(amount);
+
+  if (
+    getBalanceDelta(
       transaction_type,
-      amount,
-      description,
-      transaction_date,
-      source
+      numericAmount
+    ) === null
+  ) {
 
-    } = req.body
+    return 'Jenis transaksi tidak valid';
 
-    await createTransaction(
+  }
 
-      id_user,
-      id_wallet,
-      id_category,
-      id_budget,
-      transaction_type,
-      amount,
-      description,
-      transaction_date,
-      source
+  if (
+    !Number.isFinite(numericAmount) ||
+    numericAmount <= 0
+  ) {
 
-    )
+    return 'Amount harus lebih dari 0';
 
-    // =========================
-    // PEMASUKAN
-    // =========================
-    if (transaction_type === 'Pemasukan') {
+  }
 
-      await pool.query(
+  return null;
+
+};
+
+const lockWallets = async (
+  client,
+  walletIds
+) => {
+
+  const uniqueWalletIds =
+    [...new Set(walletIds)];
+
+  const result =
+    await client.query(
+
+      `
+      SELECT id_wallet, balance
+      FROM wallet
+      WHERE id_wallet = ANY($1::uuid[])
+      ORDER BY id_wallet
+      FOR UPDATE
+      `,
+
+      [uniqueWalletIds]
+
+    );
+
+  if (
+    result.rows.length !==
+    uniqueWalletIds.length
+  ) {
+
+    return null;
+
+  }
+
+  return new Map(
+    result.rows.map((wallet) => [
+      wallet.id_wallet,
+      Number(wallet.balance)
+    ])
+  );
+
+};
+
+const updateWalletBalance = async (
+  client,
+  id_wallet,
+  delta
+) => {
+
+  await client.query(
+
+    `
+    UPDATE wallet
+    SET balance = balance + $1
+    WHERE id_wallet = $2
+    `,
+
+    [delta, id_wallet]
+
+  );
+
+};
+
+/* =========================
+   CREATE TRANSACTION
+========================= */
+
+const addTransaction =
+  async (req, res) => {
+
+    const client =
+      await pool.connect();
+
+    try {
+
+      const {
+
+        id_user,
+        id_wallet,
+        id_category,
+        id_budget,
+        transaction_type,
+        amount,
+        description,
+        transaction_date,
+        source
+
+      } = req.body;
+
+      const validationError =
+        validateTransactionInput(
+          transaction_type,
+          amount
+        );
+
+      if (validationError) {
+
+        return res.status(400)
+          .json({
+
+            message:
+              validationError
+
+          });
+
+      }
+
+      await client.query('BEGIN');
+
+      const walletMap =
+        await lockWallets(
+          client,
+          [id_wallet]
+        );
+
+      if (!walletMap) {
+
+        await client.query('ROLLBACK');
+
+        return res.status(404)
+          .json({
+
+            message:
+              'Wallet tidak ditemukan'
+
+          });
+
+      }
+
+      const delta =
+        getBalanceDelta(
+          transaction_type,
+          amount
+        );
+
+      if (
+        walletMap.get(id_wallet) +
+        delta <
+        0
+      ) {
+
+        await client.query('ROLLBACK');
+
+        return res.status(400)
+          .json({
+
+            message:
+              'Saldo wallet tidak cukup'
+
+          });
+
+      }
+
+      /* =========================
+         CREATE TRANSACTION
+      ========================= */
+
+      await client.query(
 
         `
-        UPDATE wallet
-        SET balance = balance + $1
-        WHERE id_wallet = $2
+        INSERT INTO transactions
+        (
+          id_user,
+          id_wallet,
+          id_category,
+          id_budget,
+          transaction_type,
+          amount,
+          description,
+          transaction_date,
+          source
+        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
         `,
 
-        [amount, id_wallet]
+        [
+          id_user,
+          id_wallet,
+          id_category,
+          id_budget,
+          transaction_type,
+          amount,
+          description,
+          transaction_date,
+          source
+        ]
 
-      )
+      );
+
+      await updateWalletBalance(
+        client,
+        id_wallet,
+        delta
+      );
+
+      await client.query('COMMIT');
+
+      res.json({
+
+        message:
+          'Transaction berhasil ditambahkan'
+
+      });
+
+    } catch (error) {
+
+      await client.query('ROLLBACK');
+
+      console.log(error);
+
+      res.status(500).json({
+
+        message:
+          'Server Error'
+
+      });
 
     }
 
-    // =========================
-    // PENGELUARAN
-    // =========================
-    if (transaction_type === 'Pengeluaran') {
+    finally {
 
-      await pool.query(
-
-        `
-        UPDATE wallet
-        SET balance = balance - $1
-        WHERE id_wallet = $2
-        `,
-
-        [amount, id_wallet]
-
-      )
+      client.release();
 
     }
 
-    res.json({
-      message: 'Transaction berhasil ditambahkan'
-    })
+};
 
-  } catch (error) {
+/* =========================
+   GET TRANSACTION
+========================= */
 
-    console.log(error)
+const getTransaction =
+  async (req, res) => {
 
-    res.status(500).json({
-      message: 'Server Error'
-    })
+    try {
 
-  }
+      const { id_user } =
+        req.params;
 
-}
+      const result =
+        await getTransactionByUser(
+          id_user
+        );
 
-// =========================
-// GET TRANSACTION
-// =========================
-const getTransaction = async (req, res) => {
+      res.json(result.rows);
 
-  try {
+    } catch (error) {
 
-    const { id_user } = req.params
+      console.log(error);
 
-    const result =
-      await getTransactionByUser(id_user)
+      res.status(500).json({
 
-    res.json(result.rows)
+        message:
+          'Server Error'
 
-  } catch (error) {
+      });
 
-    console.log(error)
+    }
 
-    res.status(500).json({
-      message: 'Server Error'
-    })
+};
 
-  }
+/* =========================
+   UPDATE TRANSACTION
+========================= */
 
-}
+const editTransaction =
+  async (req, res) => {
 
-// =========================
-// UPDATE TRANSACTION
-// =========================
-const editTransaction = async (req, res) => {
+    const client =
+      await pool.connect();
 
-  try {
+    try {
 
-    const { id_transaction } = req.params
+      const {
+        id_transaction
+      } = req.params;
 
-    const {
+      const {
 
-      id_wallet,
-      id_category,
-      transaction_type,
-      amount,
-      description,
-      transaction_date,
+        id_wallet,
+        id_category,
+        transaction_type,
+        amount,
+        description,
+        transaction_date
 
-    } = req.body
+      } = req.body;
 
-    await updateTransaction(
+      const validationError =
+        validateTransactionInput(
+          transaction_type,
+          amount
+        );
 
-      id_transaction,
-      id_wallet,
-      id_category,
-      transaction_type,
-      amount,
-      description,
-      transaction_date
+      if (validationError) {
 
-    )
+        return res.status(400)
+          .json({
 
-    res.json({
-      message: 'Transaction berhasil diupdate'
-    })
+            message:
+              validationError
 
-  } catch (error) {
+          });
 
-    console.log(error)
+      }
 
-    res.status(500).json({
-      message: 'Server Error'
-    })
+      await client.query('BEGIN');
 
-  }
+      const transactionResult =
+        await client.query(
 
-}
+          `
+          SELECT *
+          FROM transactions
+          WHERE id_transaction = $1
+          FOR UPDATE
+          `,
 
-// =========================
-// DELETE TRANSACTION
-// =========================
-const removeTransaction = async (req, res) => {
+          [id_transaction]
 
-  try {
+        );
 
-    const { id_transaction } = req.params
+      const oldTransaction =
+        transactionResult.rows[0];
 
-    await deleteTransaction(id_transaction)
+      if (!oldTransaction) {
 
-    res.json({
-      message: 'Transaction berhasil dihapus'
-    })
+        await client.query('ROLLBACK');
 
-  } catch (error) {
+        return res.status(404)
+          .json({
 
-    console.log(error)
+            message:
+              'Transaction tidak ditemukan'
 
-    res.status(500).json({
-      message: 'Server Error'
-    })
+          });
 
-  }
+      }
 
-}
+      const walletMap =
+        await lockWallets(
+          client,
+          [
+            oldTransaction.id_wallet,
+            id_wallet
+          ]
+        );
+
+      if (!walletMap) {
+
+        await client.query('ROLLBACK');
+
+        return res.status(404)
+          .json({
+
+            message:
+              'Wallet tidak ditemukan'
+
+          });
+
+      }
+
+      const oldDelta =
+        getBalanceDelta(
+          oldTransaction.transaction_type,
+          oldTransaction.amount
+        );
+
+      const newDelta =
+        getBalanceDelta(
+          transaction_type,
+          amount
+        );
+
+      const balanceChanges =
+        new Map();
+
+      balanceChanges.set(
+        oldTransaction.id_wallet,
+        (balanceChanges.get(
+          oldTransaction.id_wallet
+        ) || 0) - oldDelta
+      );
+
+      balanceChanges.set(
+        id_wallet,
+        (balanceChanges.get(id_wallet) || 0) +
+        newDelta
+      );
+
+      for (const [
+        walletId,
+        delta
+      ] of balanceChanges) {
+
+        if (
+          transaction.transaction_type ===
+          INCOME_TYPE
+          &&
+          walletMap.get(transaction.id_wallet) +
+          rollbackDelta <
+          0
+        ) {
+
+          await client.query('ROLLBACK');
+
+          return res.status(400)
+            .json({
+
+              message:
+                'Saldo wallet tidak cukup'
+
+            });
+
+        }
+
+      }
+
+      for (const [
+        walletId,
+        delta
+      ] of balanceChanges) {
+
+        await updateWalletBalance(
+          client,
+          walletId,
+          delta
+        );
+
+      }
+
+      await client.query(
+
+        `
+        UPDATE transactions
+        SET
+
+          id_wallet = $1,
+          id_category = $2,
+          transaction_type = $3,
+          amount = $4,
+          description = $5,
+          transaction_date = $6
+
+        WHERE id_transaction = $7
+        `,
+
+        [
+          id_wallet,
+          id_category,
+          transaction_type,
+          amount,
+          description,
+          transaction_date,
+          id_transaction
+        ]
+
+      );
+
+      await client.query('COMMIT');
+
+      res.json({
+
+        message:
+          'Transaction berhasil diupdate'
+
+      });
+
+    } catch (error) {
+
+      await client.query('ROLLBACK');
+
+      console.log(error);
+
+      res.status(500).json({
+
+        message:
+          'Server Error'
+
+      });
+
+    }
+
+    finally {
+
+      client.release();
+
+    }
+
+};
+
+/* =========================
+   DELETE TRANSACTION
+========================= */
+
+const removeTransaction =
+  async (req, res) => {
+
+    const client =
+      await pool.connect();
+
+    try {
+
+      const { id_transaction } =
+        req.params;
+
+      /* =========================
+         GET TRANSACTION
+      ========================= */
+
+      await client.query('BEGIN');
+
+      const transactionResult =
+        await client.query(
+
+          `
+          SELECT *
+          FROM transactions
+          WHERE id_transaction = $1
+          FOR UPDATE
+          `,
+
+          [id_transaction]
+
+        );
+
+      const transaction =
+        transactionResult.rows[0];
+
+      if (!transaction) {
+
+        await client.query('ROLLBACK');
+
+        return res.status(404)
+          .json({
+
+            message:
+              'Transaction tidak ditemukan'
+
+          });
+
+      }
+
+      const walletMap =
+        await lockWallets(
+          client,
+          [transaction.id_wallet]
+        );
+
+      if (!walletMap) {
+
+        await client.query('ROLLBACK');
+
+        return res.status(404)
+          .json({
+
+            message:
+              'Wallet tidak ditemukan'
+
+          });
+
+      }
+
+      /* =========================
+         RETURN WALLET BALANCE
+      ========================= */
+
+      const rollbackDelta =
+        -getBalanceDelta(
+          transaction.transaction_type,
+          transaction.amount
+        );
+
+      if (
+        walletMap.get(transaction.id_wallet) +
+        rollbackDelta <
+        0
+      ) {
+
+        await client.query('ROLLBACK');
+
+        return res.status(400)
+          .json({
+
+            message:
+              'Saldo wallet tidak cukup'
+
+          });
+
+      }
+
+      await updateWalletBalance(
+        client,
+        transaction.id_wallet,
+        rollbackDelta
+      );
+
+      /* =========================
+         DELETE TRANSACTION
+      ========================= */
+
+      await client.query(
+
+        `
+        DELETE FROM transactions
+        WHERE id_transaction = $1
+        `,
+
+        [id_transaction]
+
+      );
+
+      await client.query('COMMIT');
+
+      res.json({
+
+        message:
+          'Transaction berhasil dihapus'
+
+      });
+
+    } catch (error) {
+
+      await client.query('ROLLBACK');
+
+      console.log(error);
+
+      res.status(500).json({
+
+        message:
+          'Server Error'
+
+      });
+
+    }
+
+    finally {
+
+      client.release();
+
+    }
+
+};
 
 module.exports = {
 
@@ -208,4 +720,4 @@ module.exports = {
   editTransaction,
   removeTransaction
 
-}
+};

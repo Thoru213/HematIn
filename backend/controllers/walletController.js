@@ -143,11 +143,30 @@ const {
   
   }
   
+  // =========================
+  // GET WALLET TYPES
+  // =========================
+  const getWalletTypes = (req, res) => {
+  
+    const types = [
+      'Cash',
+      'Bank',
+      'E-Wallet',
+      'Credit Card',
+      'Investment',
+      'Other'
+    ]
+  
+    res.json(types)
+  
+  }
+  
   module.exports = {
   
     addWallet,
     getWallet,
     editWallet,
-    removeWallet
+    removeWallet,
+    getWalletTypes
   
   }

@@ -5,9 +5,11 @@ import "../../dist/css/Transaction.css";
 
 const BudgetForm = ({
   formData,
+  categories = [],
   handleChange,
   handleTypeChange,
   handleSubmit,
+  isEditing = false,
 }) => {
 
   return (
@@ -17,7 +19,7 @@ const BudgetForm = ({
     >
 
       <h2 className="form-title">
-        Add Budget
+        {isEditing ? "Edit Budget" : "Add Budget"}
       </h2>
 
       {/* TYPE */}
@@ -65,40 +67,14 @@ const BudgetForm = ({
             Select Category
           </option>
 
-          {
-            formData.budgetType ===
-            "Pengeluaran"
-            ? (
-              <>
-                <option value="Food">
-                  Food
-                </option>
-
-                <option value="Transport">
-                  Transport
-                </option>
-
-                <option value="Shopping">
-                  Shopping
-                </option>
-              </>
-            )
-            : (
-              <>
-                <option value="Salary">
-                  Salary
-                </option>
-
-                <option value="Freelance">
-                  Freelance
-                </option>
-
-                <option value="Bonus">
-                  Bonus
-                </option>
-              </>
-            )
-          }
+          {categories.map((cat) => (
+            <option
+              key={cat.id_category}
+              value={cat.id_category}
+            >
+              {cat.category_name}
+            </option>
+          ))}
 
         </select>
 
@@ -156,7 +132,7 @@ const BudgetForm = ({
         type="submit"
         className="submit-btn"
       >
-        Save Budget
+        {isEditing ? "Update Budget" : "Save Budget"}
       </button>
 
     </form>

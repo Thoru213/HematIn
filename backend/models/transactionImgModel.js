@@ -1,7 +1,7 @@
 const pool = require('../config/db')
 
 // =========================
-// CREATE TRANSACTION IMAGE
+// CREATE IMAGE
 // =========================
 const createTransactionImage = async (
 
@@ -22,6 +22,8 @@ const createTransactionImage = async (
     )
 
     VALUES ($1,$2,$3)
+
+    RETURNING *
     `,
 
     [
@@ -35,16 +37,22 @@ const createTransactionImage = async (
 }
 
 // =========================
-// GET TRANSACTION IMAGE
+// GET IMAGE
 // =========================
-const getTransactionImage = async (id_transaction) => {
+const getTransactionImage = async (
+
+  id_transaction
+
+) => {
 
   return await pool.query(
 
     `
     SELECT *
     FROM transaction_img
+
     WHERE id_transaction = $1
+
     ORDER BY transaction_created_at DESC
     `,
 

@@ -85,6 +85,27 @@ const getTransactionByUser = async (id_user) => {
 
 }
 
+/* =========================
+   GET TRANSACTION BY ID
+========================= */
+
+const getTransactionById =
+  async (id_transaction) => {
+
+    return await pool.query(
+
+      `
+      SELECT *
+      FROM transactions
+      WHERE id_transaction = $1
+      `,
+
+      [id_transaction]
+
+    );
+
+};
+
 // =========================
 // UPDATE TRANSACTION
 // =========================
@@ -152,6 +173,7 @@ module.exports = {
 
   createTransaction,
   getTransactionByUser,
+  getTransactionById,
   updateTransaction,
   deleteTransaction
 

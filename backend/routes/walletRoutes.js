@@ -7,9 +7,13 @@ const {
   addWallet,
   getWallet,
   editWallet,
-  removeWallet
+  removeWallet,
+  getWalletTypes
 
 } = require('../controllers/walletController')
+
+// GET TYPES
+router.get('/types', getWalletTypes)
 
 // CREATE
 router.post('/', addWallet)

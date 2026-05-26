@@ -57,14 +57,24 @@ const getBudgetByUser = async (id_user) => {
     SELECT
 
       b.*,
-      c.category_name
+      c.category_name,
+      COALESCE(SUM(t.amount), 0) AS used_amount
 
     FROM budget b
 
     JOIN category c
     ON b.id_category = c.id_category
 
+    LEFT JOIN transactions t
+    ON  t.id_category = b.id_category
+    AND t.id_user     = b.id_user
+    AND t.transaction_type = b.budget_type
+    AND t.transaction_date >= b.start_date
+    AND t.transaction_date <= b.end_date
+
     WHERE b.id_user = $1
+
+    GROUP BY b.id_budget, c.category_name
 
     ORDER BY b.start_date DESC
     `,
