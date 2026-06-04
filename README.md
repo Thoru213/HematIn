@@ -81,4 +81,4 @@ node server.js
 
 Saat ini Hematin belum menggunakan model Machine Learning.
 
-Fitur unggah struk masih berfungsi sebagai media penyimpanan gambar transaksi dan sedang dipersiapkan untuk integrasi OCR pada pengembangan selanjutnya.
+Fitur unggah struk masih berfungsi sebagai media dipersiapkan untuk integrasi OCR
