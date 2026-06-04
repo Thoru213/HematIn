@@ -1,0 +1,30 @@
+.env
+.env.*
+!.env.example
+
+# Virtual Environment -- emma added
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment variables
+.env
+.env.*
+
+# VS Code
+.vscode/
+
+# JetBrains
+.idea/
+
+# Testing
+.pytest_cache/
+
+# Logs
+*.log

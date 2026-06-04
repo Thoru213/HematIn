@@ -1,0 +1,62 @@
+version: "3.9"
+
+services:
+
+  # ── Node.js Backend ───────────────────────────────────────
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    environment:
+      - AI_SERVICE_URL=http://ai_gateway:8000
+      - AI_SERVICE_API_KEY=${AI_SERVICE_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+      - ai_gateway
+
+  # ── BullMQ Worker ─────────────────────────────────────────
+  worker:
+    build: ./backend
+    command: node src/workers/ocrWorker.js
+    environment:
+      - AI_SERVICE_URL=http://ai_gateway:8000
+      - AI_SERVICE_API_KEY=${AI_SERVICE_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      ai_gateway:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  # ── FastAPI AI Gateway ────────────────────────────────────
+  # Gateway ini TIDAK expose port ke publik
+  # Hanya bisa diakses dari dalam Docker network
+  ai_gateway:
+    build: ./fastapi_service
+    # Sengaja tidak ada "ports:" — tidak exposed ke host
+    environment:
+      - API_KEY=${AI_SERVICE_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - HF_SPACE_URL=${HF_SPACE_URL}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ── Redis ─────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
