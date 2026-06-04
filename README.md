@@ -13,3 +13,7 @@
 ### Landing Page / Dashboard Utama
 
 ![Dashboard](https://raw.githubusercontent.com/Thoru213/HematIn/main/Assets/LandingPage.jpeg)
+
+### Halaman Beranda
+
+![Halaman Beranda](https://github.com/Thoru213/HematIn/main/Assets/beranda.jpeg)
