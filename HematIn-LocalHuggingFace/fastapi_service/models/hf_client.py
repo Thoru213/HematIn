@@ -46,6 +46,9 @@ def _predict_sync(image_bytes: bytes) -> dict:
             api_name="/predict",
         )
 
+        logger.error(f"HF RAW RESPONSE TYPE: {type(result)}")
+        logger.error(f"HF RAW RESPONSE: {result}")
+
         if not isinstance(result, (list, tuple)) or len(result) < 2:
             raise RuntimeError(f"Unexpected Gradio response shape: {result}")
 
