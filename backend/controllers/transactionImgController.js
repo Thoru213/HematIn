@@ -5,7 +5,8 @@ const {
 
   createTransactionImage,
   getTransactionImage,
-  updateTransactionImageStatus
+  updateTransactionImageStatus,
+  updateTransactionImageResult
 
 } = require('../models/transactionImgModel')
 
@@ -125,6 +126,7 @@ if (!file) {
       console.log("=== REQUEST KE FASTAPI ===");
       
       const ocrResponse = await axios.post(
+
         "http://localhost:8000/api/v1/predict",
         {
           file_url: signedUrlData.signedUrl,
@@ -143,10 +145,17 @@ if (!file) {
       console.log("=== RESPONSE FASTAPI ===");
       console.log(ocrResponse.data);
 
+      await updateTransactionImageResult(
+        result.rows[0].id_transaction_img,
+        ocrResponse.data
+      );
+
       await updateTransactionImageStatus(
         result.rows[0].id_transaction_img,
         'success'
       );
+
+
 
     } catch (error) {
       await updateTransactionImageStatus(
