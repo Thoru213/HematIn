@@ -79,6 +79,4 @@ node server.js
 
 # 🤖 Machine Learning Model
 
-Saat ini Hematin belum menggunakan model Machine Learning.
-
-Fitur unggah struk masih berfungsi sebagai media dipersiapkan untuk integrasi OCR
+HematIn menggunakan model OCR untuk membaca gambar struk yang kemudian di ekstrak kedalam teks.
