@@ -134,10 +134,18 @@ const ReceiptModal = ({
 
         console.error(error);
 
-        toast.error(
+        toast.warn(
           error?.response?.data?.message ||
-          "Upload gagal"
+          "Proses mungkin membutuhkan waktu, silakan cek daftar transaksi"
         );
+
+        // Tetap refresh transaksi, karena backend mungkin sudah menyimpan
+        // data meski response tidak sampai ke frontend (misal timeout)
+        try {
+          await onUploadSuccess?.();
+        } catch {
+          // ignore refresh error
+        }
 
       } finally {
 

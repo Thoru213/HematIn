@@ -56,7 +56,7 @@ const TransactionTable = ({
                   {item.transaction_type}
                 </td>
 
-                <td>
+                <td className="description-cell" title={item.description}>
                   {item.description}
                 </td>
 

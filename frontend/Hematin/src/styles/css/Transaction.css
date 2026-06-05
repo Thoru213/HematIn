@@ -422,6 +422,13 @@
   font-weight: 600;
 }
 
+.description-cell {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .empty-table {
   text-align: center;
   color: var(--placeholder-color);
