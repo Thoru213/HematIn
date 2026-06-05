@@ -15,7 +15,9 @@ const getTotalBalance = async (id_user) => {
 
     FROM wallet
 
-    WHERE id_user = $1
+    WHERE
+      id_user = $1
+      AND is_deleted = FALSE
     `,
 
     [id_user]
